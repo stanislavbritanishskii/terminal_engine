@@ -1,20 +1,6 @@
 #include "term.h"
 
 
-
-int	*get_screen_size()
-{
-	int	*res;
-
-	res = malloc(sizeof(int) * 2);
-	struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-	res[0] = w.ws_row;
-	res[1] = w.ws_col;
-	return (res);
-}
-
 t_settings *init_settings(void)
 {
 	t_settings *res;
@@ -25,7 +11,7 @@ t_settings *init_settings(void)
 	res->pressed_lock = malloc(sizeof(pthread_mutex_t));
 	res->scene_size = get_screen_size();
 	res->initial_scene = make_scene(res->scene_size[0] - 1, res->scene_size[1] - 1);
-	res->actual_scene = copy_scene(res->initial_scene, res->scene_size[0] - 1, res->scene_size[1] - 1);
+	res->actual_scene = copy_scene(res->initial_scene);
 	pthread_mutex_init(res->pressed_lock, NULL);
 	res->value = 0;
 	res->pressed_thread = create_thread();
@@ -54,13 +40,6 @@ void	clear_settings(t_settings *settings)
 // {
 // 	system("leaks a.out");
 // }
-
-int equal_size(int *s1, int *s2)
-{
-	if (s1[0] == s2[0] && s1[1] == s2[1])
-		return (1);
-	return (0);
-}
 
 t_object *make_stone()
 {
@@ -111,6 +90,24 @@ void	bouncy_move(t_object *object, t_settings *settings)
 	object->clicks_till_move--;
 }
 
+void	fill_map_with_dots(t_scene *scene, int n)
+{
+	int	i;
+	int	j;
+
+	i = 1;
+	while (scene->image[i])
+	{
+		j = 1;
+		while (scene->image[i][j])
+		{
+			if ((i + j) % n == 0 && i != scene->y - 1 && j != scene->x - 1)
+				scene->image[i][j] = '.';
+			j++;
+		}
+		i++;
+	}
+}
 
 int main (int argc, char **argv)
 {
@@ -125,31 +122,29 @@ int main (int argc, char **argv)
 	object = create_object("objects/object.txt");
 	ball = make_stone();
 	ball1 = make_stone();
-	ball1->x_dir *= -1;
+	ball1->x_dir = 20;
 	ball2 = make_stone();
 	ball2->y_dir *= -3;
 	ball3 = make_stone();
-	ball3->y_dir *= -2;
-	ball3->x_dir *= -1;
+	ball3->y_dir -= 2;
+	ball3->x_dir -= 4;
 	change_echo();
 	change_raw();
 	// atexit(check_leaks);
 	run_pressed_thread(settings);
+	fill_map_with_dots(settings->initial_scene, 3);
+	free_scene(settings->actual_scene);
+	settings->actual_scene = copy_scene(settings->initial_scene);
 	while (c != '!')
 	{
 		c = get_pressed(settings);
-		mid_value = get_screen_size();
-		if (!equal_size(settings->scene_size, mid_value))
+		if (resize(settings))
 		{
-			free(settings->scene_size);
-			settings->scene_size = mid_value;
-			free_scene(settings->initial_scene);
+			fill_map_with_dots(settings->initial_scene, 3);
 			free_scene(settings->actual_scene);
-			settings->initial_scene = make_scene(mid_value[0] - 1, mid_value[1] - 1);
-			settings->actual_scene = copy_scene(settings->initial_scene, settings->scene_size[0] - 1, settings->scene_size[1] - 1);
+			settings->actual_scene = copy_scene(settings->initial_scene);
 		}
-		else
-			free(mid_value);
+
 		remove_object_from_scene(object, settings->actual_scene, settings->initial_scene);
 		if (c == 'w')
 			object->y--;
@@ -165,10 +160,14 @@ int main (int argc, char **argv)
 		bouncy_move(ball3, settings);
 		add_object_to_scene(object, settings->actual_scene);
 		draw_scene(settings->actual_scene);
-		printf("press WASD to move\n");
+
 		usleep(30000);
 	}
 	free_object(object);
+	free_object(ball);
+	free_object(ball1);
+	free_object(ball2);
+	free_object(ball3);
 	clear_settings(settings);
 	printf("\n");
 	change_raw();

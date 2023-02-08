@@ -9,6 +9,8 @@ t_scene	*make_scene(int rows, int cols)
 
 	i = 0;
 	res = malloc(sizeof(t_scene));
+	res->x = cols;
+	res->y = rows;
 	res->image = malloc (sizeof(char *) * (rows + 1));
 	while (i < rows)
 	{
@@ -17,10 +19,7 @@ t_scene	*make_scene(int rows, int cols)
 		j = 1;
 		while(j < cols - 1)
 		{
-			if ((i + j) % 3 == 0)
-				res->image[i][j] = '.';
-			else
-				res->image[i][j] = ' ';
+			res->image[i][j] = ' ';
 			j++;
 		}
 		res->image[i][cols - 1] = '|';
@@ -50,9 +49,11 @@ void	draw_scene(t_scene *scene)
 	}
 }
 
-t_scene	*copy_scene(t_scene *scene, int rows, int cols)
+t_scene	*copy_scene(t_scene *scene)
 {
 	t_scene	*res;
+	int rows = scene->y;
+	int cols = scene->x;
 	int i;
 	int j;
 
@@ -129,4 +130,22 @@ void	free_scene(t_scene *scene)
 	}
 	free(scene->image);
 	free(scene);
+}
+
+int	resize(t_settings *settings)
+{
+	int	*mid_value;
+	mid_value = get_screen_size();
+	if (!equal_size(settings->scene_size, mid_value))
+	{
+		free(settings->scene_size);
+		settings->scene_size = mid_value;
+		free_scene(settings->initial_scene);
+		free_scene(settings->actual_scene);
+		settings->initial_scene = make_scene(mid_value[0] - 1, mid_value[1] - 1);
+		settings->actual_scene = copy_scene(settings->initial_scene);
+		return (1);
+	}
+	free(mid_value);
+	return (0);
 }

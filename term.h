@@ -56,10 +56,11 @@ void	run_pressed_thread(t_settings *settings);
 // scene functions
 t_scene	*make_scene(int rows, int cols);
 void	draw_scene(t_scene *scene);
-t_scene	*copy_scene(t_scene *scene, int rows, int cols);
+t_scene	*copy_scene(t_scene *scene);
 void	add_object_to_scene(t_object *object, t_scene *scene);
 void	remove_object_from_scene(t_object *object, t_scene *scene, t_scene *original_scene);
 void	free_scene(t_scene *scene);
+int	resize(t_settings *settings);
 
 // object functions
 t_object *create_object(char *path);
@@ -69,5 +70,6 @@ void free_object(t_object *object);
 // utils
 char	**add_string_to_string_arr(char *str, char **arr, int n);
 char *str_copy(char *str, int n);
-
+int	*get_screen_size();
+int equal_size(int *s1, int *s2);
 #endif

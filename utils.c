@@ -51,3 +51,24 @@ char	**add_string_to_string_arr(char *str, char **arr, int n)
 	free(arr);
 	return (res);
 }
+
+int	*get_screen_size()
+{
+	int	*res;
+
+	res = malloc(sizeof(int) * 2);
+	struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+	res[0] = w.ws_row;
+	res[1] = w.ws_col;
+	return (res);
+}
+
+
+int equal_size(int *s1, int *s2)
+{
+	if (s1[0] == s2[0] && s1[1] == s2[1])
+		return (1);
+	return (0);
+}

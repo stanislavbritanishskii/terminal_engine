@@ -14,8 +14,14 @@
 typedef struct s_object
 {
 	char **image;
+	int	clicks_till_move;
+	int	total_clicks_till_move;
 	int	x;
 	int	y;
+	int x_size;
+	int y_size;
+	int x_dir;
+	int y_dir;
 }				t_object;
 
 typedef struct s_scene

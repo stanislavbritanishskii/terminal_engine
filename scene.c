@@ -15,12 +15,15 @@ t_scene	*make_scene(int rows, int cols)
 		res->image[i] = malloc(sizeof(char) * (cols + 1));
 		res->image[i][0] = '|';
 		j = 1;
-		while(j < cols - 2)
+		while(j < cols - 1)
 		{
-			res->image[i][j] = ' ';
+			if ((i + j) % 3 == 0)
+				res->image[i][j] = '.';
+			else
+				res->image[i][j] = ' ';
 			j++;
 		}
-		res->image[i][cols - 2] = '|';
+		res->image[i][cols - 1] = '|';
 		res->image[i][cols] = '\0';
 		i++;
 	}
@@ -86,7 +89,8 @@ void	add_object_to_scene(t_object *object, t_scene *scene)
 		x = object->x;
 		while (object->image[y - object->y][x - object->x])
 		{
-			if (x > 0 && y > 0 && x < scene->x && y < scene->y)
+			if (x > 0 && y > 0 && x < scene->x && y < scene->y &&
+					object->image[y - object->y][x - object->x] != ' ')
 			scene->image[y][x] = object->image[y - object->y][x - object->x];
 			x++;
 		}
@@ -106,7 +110,7 @@ void	remove_object_from_scene(t_object *object, t_scene *scene, t_scene *origina
 		x = object->x;
 		while (object->image[y - object->y][x - object->x])
 		{
-			if (x > 0 && y > 0 && x < scene->x && y < scene->y - 2)
+			if (x > 0 && y > 0 && x < scene->x && y < scene->y)
 			scene->image[y][x] = original_scene->image[y][x];
 			x++;
 		}

@@ -28,11 +28,23 @@ char **read_image(char *path)
 t_object *create_object(char *path)
 {
 	t_object *res;
+	int i;
 
 	res = malloc(sizeof(t_object));
 	res->x = 0;
 	res->y = 0;
 	res->image = read_image(path);
+	res->y_size = 0;
+	res->x_size = 0;
+	while(res->image[res->y_size])
+	{
+		i = 0;
+		while (res->image[res->y_size][i])
+			i++;
+		if (i > res->x_size)
+			res->x_size = i;
+		res->y_size++;
+	}
 	return (res);
 }
 

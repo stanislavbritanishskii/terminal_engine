@@ -10,6 +10,7 @@
 # include "get_next_line_bonus.h"
 # include <fcntl.h>
 # include <string.h>
+# include <sys/time.h>
 
 typedef struct s_object
 {
@@ -23,6 +24,14 @@ typedef struct s_object
 	int x_dir;
 	int y_dir;
 }				t_object;
+
+typedef struct s_fps
+{
+	int fps;
+	char *fps_str;
+	int x;
+	int y;
+}				t_fps;
 
 typedef struct s_scene
 {
@@ -72,4 +81,10 @@ char	**add_string_to_string_arr(char *str, char **arr, int n);
 char *str_copy(char *str, int n);
 int	*get_screen_size();
 int equal_size(int *s1, int *s2);
+long long	get_time(void);
+int	get_other_time(void);
+
+//
+char	*ft_itoa(int n);
+char	*ft_str_join_free_first(char *str1, char *str2);
 #endif

@@ -72,3 +72,31 @@ int equal_size(int *s1, int *s2)
 		return (1);
 	return (0);
 }
+
+long long	get_time(void)
+{
+	static struct timeval	tv;
+	static struct timezone	tz;
+	long long				res;
+
+	gettimeofday(&tv, &tz);
+	res = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	return (res);
+}
+
+int	get_other_time(void)
+{
+	static long long		start = 0;
+	int						res;
+
+	if (start == 0)
+	{
+		start = get_time();
+		return (0);
+	}
+	else
+	{
+		res = (int)(get_time() - start);
+		return (res);
+	}
+}

@@ -33,9 +33,14 @@ t_object *create_object(char *path)
 	res = malloc(sizeof(t_object));
 	res->x = 0;
 	res->y = 0;
-	res->image = read_image(path);
+	if (path)
+		res->image = read_image(path);
+	else
+		res->image = NULL;
 	res->y_size = 0;
 	res->x_size = 0;
+	if (res->image)
+	{
 	while(res->image[res->y_size])
 	{
 		i = 0;
@@ -44,6 +49,7 @@ t_object *create_object(char *path)
 		if (i > res->x_size)
 			res->x_size = i;
 		res->y_size++;
+	}
 	}
 	return (res);
 }
@@ -54,11 +60,14 @@ void free_object(t_object *object)
 	int	i;
 
 	i = 0;
-	while(object->image[i])
+	if (object->image)
 	{
-		free(object->image[i]);
-		i++;
+		while(object->image[i])
+		{
+			free(object->image[i]);
+			i++;
+		}
+		free(object->image);
 	}
-	free(object->image);
 	free(object);
 }

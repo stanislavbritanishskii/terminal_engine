@@ -109,6 +109,34 @@ void	fill_map_with_dots(t_scene *scene, int n)
 	}
 }
 
+int	get_fps()
+{
+	static int prev_time = 0;
+	static int prev_fps = 0;
+	static int current_fps = 0;
+
+	if (get_other_time() / 1000 != prev_time)
+	{
+		prev_time = get_other_time() / 1000;
+		prev_fps = current_fps;
+		current_fps = 0;
+	}
+	current_fps++;
+	return (prev_fps);
+}
+
+void	add_fps_to_scene(t_fps *fps, t_scene *scene)
+{
+	int i;
+
+	i = 0;
+	while (fps->fps_str[i] && scene->image[0][i])
+	{
+		scene->image[0][i] = fps->fps_str[i];
+		i++;
+	}
+}
+
 int main (int argc, char **argv)
 {
 	int	*mid_value;
@@ -116,9 +144,15 @@ int main (int argc, char **argv)
 	t_settings *settings;
 	t_object *object;
 	t_object *ball, *ball1, *ball2, *ball3;
+	t_fps *fps;
 	char **scene;
+	int sleep_time;
 
 	settings = init_settings();
+	sleep_time = 10000;
+	fps = malloc(sizeof(t_fps));
+	fps->fps = get_fps();
+	fps->fps_str = ft_itoa(fps->fps);
 	object = create_object("objects/object.txt");
 	ball = make_stone();
 	ball1 = make_stone();
@@ -144,7 +178,13 @@ int main (int argc, char **argv)
 			free_scene(settings->actual_scene);
 			settings->actual_scene = copy_scene(settings->initial_scene);
 		}
-
+		if (get_fps() != fps->fps)
+		{
+			fps->fps = get_fps();
+			free(fps->fps_str);
+			fps->fps_str =ft_str_join_free_first(ft_itoa(fps->fps), " FPS");
+			add_fps_to_scene(fps, settings->actual_scene);
+		}
 		remove_object_from_scene(object, settings->actual_scene, settings->initial_scene);
 		if (c == 'w')
 			object->y--;
@@ -154,16 +194,23 @@ int main (int argc, char **argv)
 			object->x -= 2;
 		if (c == 'd')
 			object->x += 2;
+		if (c == '+')
+			sleep_time += 200;
+		if (c == '-')
+			sleep_time -= 200;
+		if (sleep_time < 0)
+			sleep_time = 0;
 		bouncy_move(ball, settings);
 		bouncy_move(ball1, settings);
 		bouncy_move(ball2, settings);
 		bouncy_move(ball3, settings);
 		add_object_to_scene(object, settings->actual_scene);
 		draw_scene(settings->actual_scene);
-
-		usleep(30000);
+		usleep(sleep_time);
 	}
 	free_object(object);
+	free(fps->fps_str);
+	free(fps);
 	free_object(ball);
 	free_object(ball1);
 	free_object(ball2);
